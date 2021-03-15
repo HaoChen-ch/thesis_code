@@ -1,6 +1,5 @@
 package com.example.thesis.ui.dashboard;
 
-import android.hardware.SensorEventListener;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,17 +7,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.thesis.R;
-import com.example.thesis.data.SensorData;
-
-import java.util.Objects;
-
-import static java.lang.Thread.sleep;
 
 public class DashboardFragment extends Fragment {
 
@@ -36,6 +28,7 @@ public class DashboardFragment extends Fragment {
 
         dashboardViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
 
+        dashboardViewModel.beginService();
         return root;
     }
 }

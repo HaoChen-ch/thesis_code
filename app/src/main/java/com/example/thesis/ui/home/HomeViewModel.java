@@ -12,6 +12,11 @@ import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 public class HomeViewModel extends ViewModel {
     static final String TAG = "PythonOnAndroid";
     private MutableLiveData<String> mText;
@@ -29,10 +34,12 @@ public class HomeViewModel extends ViewModel {
 
     void callPythonCode() {
         Python py = Python.getInstance();
-        PyObject obj1 = py.getModule("test").callAttr("add", 2, 3);
+        List a = Collections.singletonList(new int[]{1, 2, 3,4,6});
+
+        PyObject obj1 = py.getModule("test").callAttr("add", a.toArray());
         // 将Python返回值换为Java中的Integer类型
         Double sum = obj1.toJava(Double.class);
-        System.out.println("++++++++++"+sum.toString());
+        System.out.println("++++++++++" + sum.toString());
         mText.setValue("add = " + sum.toString());
 
     }
