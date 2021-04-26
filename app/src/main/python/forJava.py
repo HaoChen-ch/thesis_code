@@ -247,10 +247,8 @@ def rotate(data):
     acc_x = pd.DataFrame(rn0 * acc[0] + rn1 * acc[1] + rn2 * acc[2])
     acc_y = pd.DataFrame(rn3 * acc[0] + rn4 * acc[1] + rn5 * acc[2])
     acc_z = pd.DataFrame(rn6 * acc[0] + rn7 * acc[1] + rn8 * acc[2])
-    acc = np.hstack((acc_x, acc_y, acc_z))
-    acc_xy = pd.DataFrame(np.sqrt(np.square(acc[:, 0]) + np.square(acc[:, 1])))
-    acc_xyz = pd.DataFrame(np.sqrt(np.square(acc[:, 0]) + np.square(acc[:, 1]) + np.square(acc[:, 2])))
-    acc = pd.DataFrame(acc)
+    acc_xyz = pd.DataFrame(np.sqrt(np.square(data['acc_x'] + np.square(data['acc_y']) + np.square(data['acc_z']))))
+    acc = pd.DataFrame(np.hstack((acc_xyz, acc_x, acc_y, acc_z)))
 
     pitch = pd.DataFrame(np.arctan(rn7 / rn8))
     roll = pd.DataFrame(np.arcsin(-rn6))
@@ -261,7 +259,7 @@ def rotate(data):
     # -----------------------------------------------------------------------------------------------
     # 对m_x,m_y,m_z取平方和之后开根号，作为新的列值，并且对magnetic做坐标转化
 
-    mag = np.asarray([data['m_x'], data['m_y'], data['m_z']])
+    mag = np.asarray([data['mag_x'], data['mag_y'], data['mag_z']])
     mag_x = pd.DataFrame(rn0 * mag[0] + rn1 * mag[1] + rn2 * mag[2])
     mag_y = pd.DataFrame(rn3 * mag[0] + rn4 * mag[1] + rn5 * mag[2])
     mag_z = pd.DataFrame(rn6 * mag[0] + rn7 * mag[1] + rn8 * mag[2])
@@ -270,43 +268,53 @@ def rotate(data):
     magnetic = pd.DataFrame(np.hstack((ma, mag_x, mag_y, mag_z)))
     # 输出格式为['ma','m_x', 'm_y', 'm_z']
     # -----------------------------------------------------------------------------------------------
-    remain = pd.DataFrame(np.asarray([data['gy_x'], data['gy_y'], data['gy_z'],
-                                      data['g_x'], data['g_x'], data['g_x'],
-                                      data['l_x'], data['l_x'], data['l_x'],
-                                      data['pressure']
+    gyr_xyz = np.sqrt(np.square(data['gyr_x'] + np.square(data['gyr_y']) + np.square(data['gyr_z'])))
+    gra_xyz = np.sqrt(np.square(data['gra_x'] + np.square(data['gra_y']) + np.square(data['gra_z'])))
+    lacc_xyz = np.sqrt(np.square(data['lacc_x'] + np.square(data['lacc_y']) + np.square(data['lacc_z'])))
+
+    remain = pd.DataFrame(np.asarray([gyr_xyz, data['gyr_x'], data['gyr_y'], data['gyr_z'],
+                                      gra_xyz, data['gra_x'], data['gra_y'], data['gra_z'],
+                                      lacc_xyz, data['lacc_x'], data['lacc_y'], data['lacc_z']
                                       ]).T)
 
-    fin = pd.concat((acc, acc_xy, acc_xyz, ori, magnetic, remain), axis=1, ignore_index=True)
-
-    fin.columns = ['acc_x', 'acc_y', 'acc_z', 'acc_xy', 'acc_xyz',
+    fin = pd.concat((acc, ori, magnetic, remain), axis=1)
+    fin.columns = ['acc', 'acc_x', 'acc_y', 'acc_z',
                    'o_w', 'o_x', 'o_y', 'o_z', 'pitch', 'roll', 'yaw',
                    'magnetic', 'm_x', 'm_y', 'm_z',
-                   'gy_x', 'gy_y', 'gy_z',
-                   'g_x', 'g_y', 'g_z',
-                   'l_x', 'l_y', 'l_z',
-                   'pressure']
+                   'gyr', 'gy_x', 'gy_y', 'gy_z',
+                   'gra', 'g_x', 'g_y', 'g_z',
+                   'l', 'l_x', 'l_y', 'l_z']
     return fin
 
 
-def change(acc_x, acc_y, acc_z, o_w, o_x, o_y, o_z, m_x, m_y, m_z, gy_x, gy_y, gy_z, g_x, g_y, g_z, l_x, l_y, l_z,
-           pressure):
+def change(acc_x, acc_y, acc_z, o_w, o_x, o_y, o_z, m_x, m_y, m_z, gy_x, gy_y, gy_z, g_x, g_y, g_z, l_x, l_y, l_z):
     matrix = np.asarray([acc_x, acc_y, acc_z, o_w, o_x, o_y, o_z, m_x, m_y, m_z, gy_x, gy_y, gy_z, g_x, g_y, g_z, l_x,
-                         l_y, l_z,
-                         pressure], dtype='float').T
+                         l_y, l_z], dtype='float').T
     columns_name = ['acc_x', 'acc_y', 'acc_z',
                     'o_w', 'o_x', 'o_y', 'o_z',
-                    'm_x', 'm_y', 'm_z',
-                    'gy_x', 'gy_y', 'gy_z',
-                    'g_x', 'g_y', 'g_z', 'l_x',
-                    'l_y', 'l_z',
-                    'pressure']
+                    'mag_x', 'mag_y', 'mag_z',
+                    'gyr_x', 'gyr_y', 'gyr_z',
+                    'gra_x', 'gra_y', 'gra_z', 'lacc_x',
+                    'lacc_y', 'lacc_z']
     df = pd.DataFrame(matrix, columns=columns_name)
+    print("df shape",df.shape)
     return df
 
 
-def fun1(acc_x, acc_y, acc_z, o_w, o_x, o_y, o_z, m_x, m_y, m_z, gy_x, gy_y, gy_z, g_x, g_y, g_z, l_x, l_y, l_z,
-        pressure):
-    df = change(acc_x, acc_y, acc_z, o_w, o_x, o_y, o_z, m_x, m_y, m_z, gy_x, gy_y, gy_z, g_x, g_y, g_z, l_x, l_y, l_z,
-                pressure)
+def fun1(acc_x, acc_y, acc_z, o_w, o_x, o_y, o_z, m_x, m_y, m_z, gy_x, gy_y, gy_z, g_x, g_y, g_z, l_x, l_y, l_z):
+    # print(len(acc_x))
+    # print(len(m_x))
+    # print(len(gy_x))
+    # print(len(o_w))
+    # print(len(g_x))
+    # print(len(l_x))
+    df = change(acc_x, acc_y, acc_z, o_w, o_x, o_y, o_z, m_x, m_y, m_z, gy_x, gy_y, gy_z, g_x, g_y, g_z, l_x, l_y, l_z)
+    df = rotate(df)
     df = feature_calculator(df)
-    return df
+    print(len(df))
+    col = [543, 219, 1013, 1213, 1040, 3, 246, 1364, 554, 1375, 84]
+    ans = []
+    for i in col:
+        ans.append(float(df[i]))
+
+    return ans

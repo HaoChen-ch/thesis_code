@@ -1,16 +1,15 @@
 package com.example.thesis.ui.dashboard;
 
 import android.content.Context;
-import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-
-import com.example.thesis.collector.Compute;
+import com.example.thesis.collector.FeatureExtraction;
 import com.example.thesis.data.DataCollector;
+import com.example.thesis.data.Model;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -19,11 +18,11 @@ public class DashboardViewModel extends ViewModel {
 
     private MutableLiveData<String> mText = new MutableLiveData<>();
     private DataCollector dataCollector;
-
-    private Context context;
-    private Compute compute;
+    private FeatureExtraction featureExtraction;
+    private Model model;
 
     public DashboardViewModel() {
+
     }
 
     public LiveData<String> getText() {
@@ -31,9 +30,9 @@ public class DashboardViewModel extends ViewModel {
     }
 
     public void setContext(Context context) {
-        this.context = context;
         dataCollector = new DataCollector(context);
-        compute = new Compute(context);
+        featureExtraction = new FeatureExtraction(context);
+        model = new Model(context);
     }
 
     public void beginService() {
@@ -65,35 +64,42 @@ public class DashboardViewModel extends ViewModel {
                 List l_x = dataCollector.getLAccX();
                 List l_y = dataCollector.getLAccY();
                 List l_z = dataCollector.getLAccZ();
-                List pressure = dataCollector.getPressure();
-
+                Float[] features ;
                 System.out.println("size : " + acc_x.size() + "- " + acc_y.size() + "- " + acc_z.size() + "- " +
-                        o_w.size() + "- " + o_x.size() + "- " + o_y.size() + "- " + o_z.size() +"- "+
-                        m_x.size() +"- "+ m_y.size() +"- "+ m_z.size() +"- "+
-                        gy_x.size() +"- "+ gy_y.size() +"- "+ gy_z.size() +"- "+
-                        g_x.size() +"- "+ g_y.size() +"- "+ g_z.size() +"- "+
-                        l_x.size() +"- "+ l_y.size() +"- "+ l_z.size() +"- "+
-                        pressure.size());
-                if (acc_x.size() == 500 && acc_y.size() == 500 && acc_z.size() == 500 &&
-                        o_w.size() == 500 && o_x.size() == 500 && o_y.size() == 500 && o_z.size() == 500 &&
-                        m_x.size() == 500 && m_y.size() == 500 && m_z.size() == 500 &&
-                        gy_x.size() == 500 && gy_y.size() == 500 && gy_z.size() == 500 &&
-                        g_x.size() == 500 && g_y.size() == 500 && g_z.size() == 500 &&
-                        l_x.size() == 500 && l_y.size() == 500 && l_z.size() == 500 &&
-                        pressure.size() == 500) {
-                    text = compute.callPythonCode(acc_x, acc_y, acc_z,
-                            o_w, o_x, o_y, o_z,
-                            m_x, m_y, m_z,
-                            gy_x, gy_y, gy_z,
-                            g_x, g_y, g_z,
-                            l_x, l_y, l_z, pressure);
+                        o_w.size() + "- " + o_x.size() + "- " + o_y.size() + "- " + o_z.size() + "- " +
+                        m_x.size() + "- " + m_y.size() + "- " + m_z.size() + "- " +
+                        gy_x.size() + "- " + gy_y.size() + "- " + gy_z.size() + "- " +
+                        g_x.size() + "- " + g_y.size() + "- " + g_z.size() + "- " +
+                        l_x.size() + "- " + l_y.size() + "- " + l_z.size() + "- ");
+                if (acc_x.size() == 500 && o_w.size() == 500 && m_x.size() == 500 &&
+                        gy_x.size() == 500 && g_x.size() == 500 && l_x.size() == 500) {
+//                    System.out.println("size : " + acc_x.size() + "- " + acc_y.size() + "- " + acc_z.size() + "- " +
+//                            o_w.size() + "- " + o_x.size() + "- " + o_y.size() + "- " + o_z.size() + "- " +
+//                            m_x.size() + "- " + m_y.size() + "- " + m_z.size() + "- " +
+//                            gy_x.size() + "- " + gy_y.size() + "- " + gy_z.size() + "- " +
+//                            g_x.size() + "- " + g_y.size() + "- " + g_z.size() + "- " +
+//                            l_x.size() + "- " + l_y.size() + "- " + l_z.size() + "- ");
+                    try {
+                        features = featureExtraction.callPythonCode(acc_x, acc_y, acc_z,
+                                o_w, o_x, o_y, o_z,
+                                m_x, m_y, m_z,
+                                gy_x, gy_y, gy_z,
+                                g_x, g_y, g_z,
+                                l_x, l_y, l_z);
+                        System.out.println(Arrays.toString(features));
+                        text = model.predict(features);
+                    } catch (Throwable t) {
+                        System.out.println(t.getMessage());
+                        text = "nono";
+                    }
                 } else {
                     text = String.valueOf(System.currentTimeMillis());
                 }
                 mText.postValue(text);
+                System.out.println(text);
                 dataCollector.clear();
             }
         };
-        timer.schedule(myTimerTask, 0, 5000L);
+        timer.schedule(myTimerTask, 0, 7000L);
     }
 }

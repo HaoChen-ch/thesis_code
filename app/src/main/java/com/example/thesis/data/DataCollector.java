@@ -2,241 +2,200 @@ package com.example.thesis.data;
 
 import android.content.Context;
 import android.hardware.Sensor;
-
-import com.example.thesis.collector.OrientationDataCollector;
-import com.example.thesis.collector.SensorDataCollector;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DataCollector {
-    private SensorDataCollector acc;
-    private SensorDataCollector gry;
-    private SensorDataCollector lin_acc;
-    private SensorDataCollector gravity;
-    private SensorDataCollector pressure;
-    private SensorDataCollector magnetic;
-    private OrientationDataCollector ori;
-
-    private final float[] row = new float[20];
+public class DataCollector implements SensorEventListener {
+    private final List<Float> acc_x = new ArrayList<>();
+    private final List<Float> acc_y = new ArrayList<>();
+    private final List<Float> acc_z = new ArrayList<>();
+    private final List<Float> ori_w = new ArrayList<>();
+    private final List<Float> ori_x = new ArrayList<>();
+    private final List<Float> ori_y = new ArrayList<>();
+    private final List<Float> ori_z = new ArrayList<>();
+    private final List<Float> gry_x = new ArrayList<>();
+    private final List<Float> gry_y = new ArrayList<>();
+    private final List<Float> gry_z = new ArrayList<>();
+    private final List<Float> lin_x = new ArrayList<>();
+    private final List<Float> lin_y = new ArrayList<>();
+    private final List<Float> lin_z = new ArrayList<>();
+    private final List<Float> gra_x = new ArrayList<>();
+    private final List<Float> gra_y = new ArrayList<>();
+    private final List<Float> gra_z = new ArrayList<>();
+    private final List<Float> magnetic_x = new ArrayList<>();
+    private final List<Float> magnetic_y = new ArrayList<>();
+    private final List<Float> magnetic_z = new ArrayList<>();
 
     public DataCollector(Context context) {
-        acc = new SensorDataCollector(context, Sensor.TYPE_ACCELEROMETER);
-        gry = new SensorDataCollector(context, Sensor.TYPE_GYROSCOPE);
-        lin_acc = new SensorDataCollector(context, Sensor.TYPE_LINEAR_ACCELERATION);
-        gravity = new SensorDataCollector(context, Sensor.TYPE_GRAVITY);
-        pressure = new SensorDataCollector(context, Sensor.TYPE_PRESSURE);
-        ori = new OrientationDataCollector(context);
-        magnetic = new SensorDataCollector(context, Sensor.TYPE_MAGNETIC_FIELD);
-    }
+        int sp = 10000;
+        SensorManager sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
 
-    public boolean isSuccess() {
-        return acc.isSuccess() &&
-                gry.isSuccess() &&
-                lin_acc.isSuccess() &&
-                gravity.isSuccess() &&
-                pressure.isSuccess() &&
-                magnetic.isSuccess() &&
-                ori.isSuccess();
-    }
-    public boolean size() {
-        return acc.isSuccess() &&
-                gry.isSuccess() &&
-                lin_acc.isSuccess() &&
-                gravity.isSuccess() &&
-                pressure.isSuccess() &&
-                magnetic.isSuccess() &&
-                ori.isSuccess();
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), sp);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE), sp);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION), sp);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY), sp);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR), sp);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), sp);
     }
 
     public List<Float> getAccX() {
-        List<Float> data = new ArrayList<>();
-        List<float[]> tmp = acc.getData();
-        for (int i = 0; i < tmp.size(); i++) {
-            data.add(tmp.get(i)[0]);
-        }
-        return data;
+        return acc_x;
     }
 
     public List<Float> getAccY() {
-        List<Float> data = new ArrayList<>();
-        List<float[]> tmp = acc.getData();
-        for (int i = 0; i < tmp.size(); i++) {
-            data.add(tmp.get(i)[1]);
-        }
-        return data;
+        return acc_y;
     }
 
     public List<Float> getAccZ() {
-        List<Float> data = new ArrayList<>();
-        List<float[]> tmp = acc.getData();
-        for (int i = 0; i < tmp.size(); i++) {
-            data.add(tmp.get(i)[2]);
-        }
-        return data;
+        return acc_z;
     }
 
     public List<Float> getGryX() {
-        List<Float> data = new ArrayList<>();
-        List<float[]> tmp = gry.getData();
-        for (int i = 0; i < tmp.size(); i++) {
-            data.add(tmp.get(i)[0]);
-        }
-        return data;
+        return gry_x;
     }
 
     public List<Float> getGryY() {
-        List<Float> data = new ArrayList<>();
-        List<float[]> tmp = gry.getData();
-        for (int i = 0; i < tmp.size(); i++) {
-            data.add(tmp.get(i)[1]);
-        }
-        return data;
+        return gry_y;
     }
 
     public List<Float> getGryZ() {
-        List<Float> data = new ArrayList<>();
-        List<float[]> tmp = gry.getData();
-        for (int i = 0; i < tmp.size(); i++) {
-            data.add(tmp.get(i)[2]);
-        }
-        return data;
+        return gry_z;
     }
 
     public List<Float> getLAccX() {
-        List<Float> data = new ArrayList<>();
-        List<float[]> tmp = lin_acc.getData();
-        for (int i = 0; i < tmp.size(); i++) {
-            data.add(tmp.get(i)[0]);
-        }
-        return data;
+        return lin_x;
     }
 
     public List<Float> getLAccY() {
-        List<Float> data = new ArrayList<>();
-        List<float[]> tmp = lin_acc.getData();
-        for (int i = 0; i < tmp.size(); i++) {
-            data.add(tmp.get(i)[1]);
-        }
-        return data;
+        return lin_y;
     }
 
     public List<Float> getLAccZ() {
-        List<Float> data = new ArrayList<>();
-        List<float[]> tmp = lin_acc.getData();
-        for (int i = 0; i < tmp.size(); i++) {
-            data.add(tmp.get(i)[2]);
-        }
-        return data;
+        return lin_z;
     }
 
     public List<Float> getGraX() {
-        List<Float> data = new ArrayList<>();
-        List<float[]> tmp = gravity.getData();
-        for (int i = 0; i < tmp.size(); i++) {
-            data.add(tmp.get(i)[0]);
-        }
-        return data;
+        return gra_x;
     }
 
     public List<Float> getGraY() {
-        List<Float> data = new ArrayList<>();
-        List<float[]> tmp = gravity.getData();
-        for (int i = 0; i < tmp.size(); i++) {
-            data.add(tmp.get(i)[1]);
-        }
-        return data;
+        return gra_y;
     }
 
     public List<Float> getGraZ() {
-        List<Float> data = new ArrayList<>();
-        List<float[]> tmp = gravity.getData();
-        for (int i = 0; i < tmp.size(); i++) {
-            data.add(tmp.get(i)[2]);
-        }
-        return data;
-    }
-
-    public List<Float> getPressure() {
-        List<Float> data = new ArrayList<>();
-        List<float[]> tmp = pressure.getData();
-        for (int i = 0; i < tmp.size(); i++) {
-            data.add(tmp.get(i)[0]);
-        }
-        return data;
+        return gra_z;
     }
 
     public List<Float> getOriW() {
-        List<Float> data = new ArrayList<>();
-        List<float[]> tmp = ori.getData();
-        for (int i = 0; i < tmp.size(); i++) {
-            data.add(tmp.get(i)[0]);
-        }
-        return data;
+        return ori_w;
     }
 
     public List<Float> getOriX() {
-        List<Float> data = new ArrayList<>();
-        List<float[]> tmp = ori.getData();
-        for (int i = 0; i < tmp.size(); i++) {
-            data.add(tmp.get(i)[1]);
-        }
-        return data;
+        return ori_x;
     }
 
     public List<Float> getOriY() {
-        List<Float> data = new ArrayList<>();
-        List<float[]> tmp = ori.getData();
-        for (int i = 0; i < tmp.size(); i++) {
-            data.add(tmp.get(i)[2]);
-        }
-        return data;
+        return ori_y;
     }
 
     public List<Float> getOriZ() {
-        List<Float> data = new ArrayList<>();
-        List<float[]> tmp = ori.getData();
-        for (int i = 0; i < tmp.size(); i++) {
-            data.add(tmp.get(i)[3]);
-        }
-        return data;
+        return ori_z;
     }
 
     public List<Float> getMagneticX() {
-        List<Float> data = new ArrayList<>();
-        List<float[]> tmp = magnetic.getData();
-        for (int i = 0; i < tmp.size(); i++) {
-            data.add(tmp.get(i)[0]);
-        }
-        return data;
+        return magnetic_x;
     }
 
     public List<Float> getMagneticY() {
-        List<Float> data = new ArrayList<>();
-        List<float[]> tmp = magnetic.getData();
-        for (int i = 0; i < tmp.size(); i++) {
-            data.add(tmp.get(i)[1]);
-        }
-        return data;
+        return magnetic_y;
     }
 
     public List<Float> getMagneticZ() {
-        List<Float> data = new ArrayList<>();
-        List<float[]> tmp = magnetic.getData();
-        for (int i = 0; i < tmp.size(); i++) {
-            data.add(tmp.get(i)[2]);
-        }
-        return data;
+        return magnetic_z;
     }
 
     public void clear() {
-        acc.clear();
-        gry.clear();
-        lin_acc.clear();
-        gravity.clear();
-        pressure.clear();
-        ori.clear();
-        magnetic.clear();
+        acc_x.clear();
+        acc_y.clear();
+        acc_z.clear();
+        gry_x.clear();
+        gry_y.clear();
+        gry_z.clear();
+        lin_x.clear();
+        lin_y.clear();
+        lin_z.clear();
+        gra_x.clear();
+        gra_y.clear();
+        gra_z.clear();
+        ori_w.clear();
+        ori_x.clear();
+        ori_y.clear();
+        ori_z.clear();
+        magnetic_x.clear();
+        magnetic_y.clear();
+        magnetic_z.clear();
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        float[] values = sensorEvent.values;
+        int type = sensorEvent.sensor.getType();
+        switch (type) {
+            case Sensor.TYPE_ACCELEROMETER:
+                if (acc_x.size() < 500) {
+                    acc_x.add(values[0]);
+                    acc_y.add(values[1]);
+                    acc_z.add(values[2]);
+                }
+                break;
+            case Sensor.TYPE_ROTATION_VECTOR:
+                final float[] quaternionValue = new float[4];
+                SensorManager.getQuaternionFromVector(quaternionValue, values);
+                if (ori_w.size() < 500) {
+                    ori_w.add(quaternionValue[0]);
+                    ori_x.add(quaternionValue[1]);
+                    ori_y.add(quaternionValue[2]);
+                    ori_z.add(quaternionValue[3]);
+                }
+                break;
+            case Sensor.TYPE_GYROSCOPE:
+                if (gry_x.size() < 500) {
+                    gry_x.add(values[0]);
+                    gry_y.add(values[1]);
+                    gry_z.add(values[2]);
+                }
+                break;
+            case Sensor.TYPE_MAGNETIC_FIELD:
+                if (magnetic_x.size() < 500) {
+                    magnetic_x.add(values[0]);
+                    magnetic_y.add(values[1]);
+                    magnetic_z.add(values[2]);
+                }
+                break;
+            case Sensor.TYPE_GRAVITY:
+                if (gra_x.size() < 500) {
+                    gra_x.add(values[0]);
+                    gra_y.add(values[0]);
+                    gra_z.add(values[0]);
+                }
+
+                break;
+            case Sensor.TYPE_LINEAR_ACCELERATION:
+                if (lin_x.size() < 500) {
+                    lin_x.add(values[0]);
+                    lin_y.add(values[1]);
+                    lin_z.add(values[2]);
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
 
     }
 }
