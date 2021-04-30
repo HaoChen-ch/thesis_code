@@ -312,7 +312,7 @@ def fun1(acc_x, acc_y, acc_z, o_w, o_x, o_y, o_z, m_x, m_y, m_z, gy_x, gy_y, gy_
     df = rotate(df)
     df = feature_calculator(df)
     print(len(df))
-    col = [543, 219, 1013, 1213, 1040, 3, 246, 1364, 554, 1375, 84]
+    col = [1364, 543, 1361, 1348, 219, 1375, 1349, 1366, 1363, 294, 1347]
     ans = []
     for i in col:
         ans.append(float(df[i]))

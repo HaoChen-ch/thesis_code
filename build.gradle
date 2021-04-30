@@ -24,6 +24,7 @@ allprojects {
         google()
         jcenter()
         maven { url "https://chaquo.com/maven" } //添加行
+        maven { url 'https://jitpack.io' }
 //        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
 //        maven { url 'https://maven.aliyun.com/repository/google' }
 //        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
